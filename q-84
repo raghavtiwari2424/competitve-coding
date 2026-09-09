@@ -4,28 +4,78 @@ public:
 
         int n = heights.size();
 
-        int maxArea = 0;
+        // prev[i] = Previous Smaller Element ka INDEX
+        vector<int> prev(n);
 
-        // Try every starting index
+        // next[i] = Next Smaller Element ka INDEX
+        vector<int> next(n);
+
+        // Stack mein INDEXES store honge
+        stack<int> st;
+
+
+      
         for (int i = 0; i < n; i++) {
 
-            int minHeight = INT_MAX;
-
-            // Extend the rectangle towards the right
-            for (int j = i; j < n; j++) {
-
-                // Current range ki minimum height
-                minHeight = min(minHeight, heights[j]);
-
-                // Number of bars from i to j
-                int width = j - i + 1;
-
-                // Rectangle area
-                int area = minHeight * width;
-
-                // Maximum area update
-                maxArea = max(maxArea, area);
+            // Jo heights current height se badi/equal hain
+            // unka current ke liye koi use nahi hai
+            while (!st.empty() &&
+                   heights[st.top()] >= heights[i]) {
+                st.pop();
             }
+
+            // Stack empty = left mein koi smaller nahi
+            if (st.empty())
+                prev[i] = -1;
+
+            // Otherwise stack top previous smaller ka INDEX hai
+            else
+                prev[i] = st.top();
+
+            // Current INDEX ko stack mein store karo
+            st.push(i);
+        }
+
+
+        while (!st.empty())
+            st.pop();
+
+
+
+        for (int i = n - 1; i >= 0; i--) {
+
+            // Jo heights current se badi/equal hain
+            // unko remove karo
+            while (!st.empty() &&
+                   heights[st.top()] >= heights[i]) {
+                st.pop();
+            }
+
+            // Right mein smaller nahi mila
+            // n = array ke end ki boundary
+            if (st.empty())
+                next[i] = n;
+
+            // Otherwise stack top next smaller ka INDEX hai
+            else
+                next[i] = st.top();
+
+            // Current INDEX store karo
+            st.push(i);
+        int maxArea = 0;
+
+        // Har bar ko ek baar height maan kar
+        // uski maximum possible width calculate karenge
+        for (int i = 0; i < n; i++) {
+
+            // PSE aur NSE boundaries ke beech
+            // kitne bars available hain
+            int width = next[i] - prev[i] - 1;
+
+            // Area = Height × Width
+            int area = heights[i] * width;
+
+            maxArea = max(maxArea, area);
         }
 
         return maxArea;
